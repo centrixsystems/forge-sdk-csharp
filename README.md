@@ -103,6 +103,30 @@ var pdf = await client.RenderHtml("<h1>Draft Report</h1>")
     .SendAsync();
 ```
 
+### PDF/A Archival Output
+
+Generate PDF/A-compliant documents for long-term archiving.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Archival Report</h1>")
+    .PdfStandard(PdfStandard.A2B)
+    .PdfTitle("Archival Report")
+    .SendAsync();
+```
+
+### Embedded Files (ZUGFeRD/Factur-X)
+
+Attach files to PDF output. Requires PDF/A-3b for embedded file attachments.
+
+```csharp
+string xmlData = Convert.ToBase64String(File.ReadAllBytes("factur-x.xml"));
+
+var pdf = await client.RenderHtml("<h1>Invoice #1234</h1>")
+    .PdfStandard(PdfStandard.A3B)
+    .PdfAttach("factur-x.xml", xmlData, "text/xml", "Factur-X invoice", EmbedRelationship.Alternative)
+    .SendAsync();
+```
+
 ### Cancellation
 
 All async methods accept an optional `CancellationToken`:
@@ -178,6 +202,8 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PdfWatermarkFontSize` | `float` | Watermark font size in PDF points (default: auto) |
 | `PdfWatermarkScale` | `float` | Watermark image scale (0.0-1.0, default: 0.5) |
 | `PdfWatermarkLayer` | `WatermarkLayer` | Layer position: `Over` or `Under` |
+| `PdfStandard` | `PdfStandard` | PDF standard: `None`, `A2B`, `A3B` |
+| `PdfAttach` | `string, string, ...` | Embed file: path, base64 data, mime type, description, relationship |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
@@ -193,6 +219,8 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `DitherMethod` | `None`, `FloydSteinberg`, `Atkinson`, `Ordered` |
 | `Palette` | `Auto`, `BlackWhite`, `Grayscale`, `Eink` |
 | `WatermarkLayer` | `Over`, `Under` |
+| `PdfStandard` | `None`, `A2B`, `A3B` |
+| `EmbedRelationship` | `Alternative`, `Supplement`, `Data`, `Source`, `Unspecified` |
 
 ### Exceptions
 

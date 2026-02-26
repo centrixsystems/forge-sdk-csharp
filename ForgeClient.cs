@@ -113,6 +113,8 @@ public class RenderRequestBuilder
     private float? _pdfWatermarkFontSize;
     private float? _pdfWatermarkScale;
     private WatermarkLayer? _pdfWatermarkLayer;
+    private PdfStandard? _pdfStandard;
+    private List<(string path, string data, string? mimeType, string? description, EmbedRelationship? relationship)>? _pdfEmbeddedFiles;
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -149,6 +151,13 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PdfWatermarkFontSize(float size) { _pdfWatermarkFontSize = size; return this; }
     public RenderRequestBuilder PdfWatermarkScale(float scale) { _pdfWatermarkScale = scale; return this; }
     public RenderRequestBuilder PdfWatermarkLayer(WatermarkLayer layer) { _pdfWatermarkLayer = layer; return this; }
+    public RenderRequestBuilder PdfStandard(PdfStandard standard) { _pdfStandard = standard; return this; }
+    public RenderRequestBuilder PdfAttach(string path, string base64Data, string? mimeType = null, string? description = null, EmbedRelationship? relationship = null)
+    {
+        _pdfEmbeddedFiles ??= new();
+        _pdfEmbeddedFiles.Add((path, base64Data, mimeType, description, relationship));
+        return this;
+    }
 
     /// <summary>Build the JSON payload.</summary>
     public JsonObject BuildPayload()
@@ -187,7 +196,8 @@ public class RenderRequestBuilder
             _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue ||
             _pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
             _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
-            _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue)
+            _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue ||
+            _pdfStandard.HasValue || _pdfEmbeddedFiles != null)
         {
             var p = new JsonObject();
             if (_pdfTitle != null) p["title"] = _pdfTitle;
@@ -196,6 +206,7 @@ public class RenderRequestBuilder
             if (_pdfKeywords != null) p["keywords"] = _pdfKeywords;
             if (_pdfCreator != null) p["creator"] = _pdfCreator;
             if (_pdfBookmarks.HasValue) p["bookmarks"] = _pdfBookmarks.Value;
+            if (_pdfStandard.HasValue) p["standard"] = _pdfStandard.Value.ToApiString();
             if (_pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
                 _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
                 _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue)
@@ -210,6 +221,19 @@ public class RenderRequestBuilder
                 if (_pdfWatermarkScale.HasValue) wm["scale"] = _pdfWatermarkScale.Value;
                 if (_pdfWatermarkLayer.HasValue) wm["layer"] = _pdfWatermarkLayer.Value.ToApiString();
                 p["watermark"] = wm;
+            }
+            if (_pdfEmbeddedFiles != null)
+            {
+                var arr = new JsonArray();
+                foreach (var (path, data, mimeType, description, relationship) in _pdfEmbeddedFiles)
+                {
+                    var ef = new JsonObject { ["path"] = path, ["data"] = data };
+                    if (mimeType != null) ef["mime_type"] = mimeType;
+                    if (description != null) ef["description"] = description;
+                    if (relationship.HasValue) ef["relationship"] = relationship.Value.ToApiString();
+                    arr.Add(ef);
+                }
+                p["embedded_files"] = arr;
             }
             payload["pdf"] = p;
         }

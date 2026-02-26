@@ -52,6 +52,24 @@ public enum WatermarkLayer
     Under,
 }
 
+/// <summary>PDF standard compliance level.</summary>
+public enum PdfStandard
+{
+    None,
+    A2B,
+    A3B,
+}
+
+/// <summary>Relationship of an embedded file to the PDF document.</summary>
+public enum EmbedRelationship
+{
+    Alternative,
+    Supplement,
+    Data,
+    Source,
+    Unspecified,
+}
+
 internal static class EnumExtensions
 {
     public static string ToApiString(this OutputFormat f) => f switch
@@ -104,5 +122,23 @@ internal static class EnumExtensions
         WatermarkLayer.Over => "over",
         WatermarkLayer.Under => "under",
         _ => throw new ArgumentOutOfRangeException(nameof(l)),
+    };
+
+    public static string ToApiString(this PdfStandard s) => s switch
+    {
+        PdfStandard.None => "none",
+        PdfStandard.A2B => "pdf/a-2b",
+        PdfStandard.A3B => "pdf/a-3b",
+        _ => throw new ArgumentOutOfRangeException(nameof(s)),
+    };
+
+    public static string ToApiString(this EmbedRelationship r) => r switch
+    {
+        EmbedRelationship.Alternative => "alternative",
+        EmbedRelationship.Supplement => "supplement",
+        EmbedRelationship.Data => "data",
+        EmbedRelationship.Source => "source",
+        EmbedRelationship.Unspecified => "unspecified",
+        _ => throw new ArgumentOutOfRangeException(nameof(r)),
     };
 }
