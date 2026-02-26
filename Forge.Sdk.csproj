@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Forge.Sdk</RootNamespace>
+    <PackageId>Forge.Sdk</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Centrix Systems</Authors>
+    <Description>C# SDK for the Forge rendering engine</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/centrixsystems/forge-sdk-csharp</RepositoryUrl>
+    <PackageTags>forge;pdf;rendering;html;screenshot</PackageTags>
+  </PropertyGroup>
+
+</Project>
