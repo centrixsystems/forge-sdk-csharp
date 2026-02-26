@@ -105,6 +105,14 @@ public class RenderRequestBuilder
     private string? _pdfKeywords;
     private string? _pdfCreator;
     private bool? _pdfBookmarks;
+    private string? _pdfWatermarkText;
+    private string? _pdfWatermarkImage; // base64-encoded
+    private float? _pdfWatermarkOpacity;
+    private float? _pdfWatermarkRotation;
+    private string? _pdfWatermarkColor;
+    private float? _pdfWatermarkFontSize;
+    private float? _pdfWatermarkScale;
+    private WatermarkLayer? _pdfWatermarkLayer;
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -133,6 +141,14 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PdfKeywords(string keywords) { _pdfKeywords = keywords; return this; }
     public RenderRequestBuilder PdfCreator(string creator) { _pdfCreator = creator; return this; }
     public RenderRequestBuilder PdfBookmarks(bool enabled) { _pdfBookmarks = enabled; return this; }
+    public RenderRequestBuilder PdfWatermarkText(string text) { _pdfWatermarkText = text; return this; }
+    public RenderRequestBuilder PdfWatermarkImage(string base64Data) { _pdfWatermarkImage = base64Data; return this; }
+    public RenderRequestBuilder PdfWatermarkOpacity(float opacity) { _pdfWatermarkOpacity = opacity; return this; }
+    public RenderRequestBuilder PdfWatermarkRotation(float degrees) { _pdfWatermarkRotation = degrees; return this; }
+    public RenderRequestBuilder PdfWatermarkColor(string hex) { _pdfWatermarkColor = hex; return this; }
+    public RenderRequestBuilder PdfWatermarkFontSize(float size) { _pdfWatermarkFontSize = size; return this; }
+    public RenderRequestBuilder PdfWatermarkScale(float scale) { _pdfWatermarkScale = scale; return this; }
+    public RenderRequestBuilder PdfWatermarkLayer(WatermarkLayer layer) { _pdfWatermarkLayer = layer; return this; }
 
     /// <summary>Build the JSON payload.</summary>
     public JsonObject BuildPayload()
@@ -168,7 +184,10 @@ public class RenderRequestBuilder
         }
 
         if (_pdfTitle != null || _pdfAuthor != null || _pdfSubject != null ||
-            _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue)
+            _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue ||
+            _pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
+            _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
+            _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue)
         {
             var p = new JsonObject();
             if (_pdfTitle != null) p["title"] = _pdfTitle;
@@ -177,6 +196,21 @@ public class RenderRequestBuilder
             if (_pdfKeywords != null) p["keywords"] = _pdfKeywords;
             if (_pdfCreator != null) p["creator"] = _pdfCreator;
             if (_pdfBookmarks.HasValue) p["bookmarks"] = _pdfBookmarks.Value;
+            if (_pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
+                _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
+                _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue)
+            {
+                var wm = new JsonObject();
+                if (_pdfWatermarkText != null) wm["text"] = _pdfWatermarkText;
+                if (_pdfWatermarkImage != null) wm["image_data"] = _pdfWatermarkImage;
+                if (_pdfWatermarkOpacity.HasValue) wm["opacity"] = _pdfWatermarkOpacity.Value;
+                if (_pdfWatermarkRotation.HasValue) wm["rotation"] = _pdfWatermarkRotation.Value;
+                if (_pdfWatermarkColor != null) wm["color"] = _pdfWatermarkColor;
+                if (_pdfWatermarkFontSize.HasValue) wm["font_size"] = _pdfWatermarkFontSize.Value;
+                if (_pdfWatermarkScale.HasValue) wm["scale"] = _pdfWatermarkScale.Value;
+                if (_pdfWatermarkLayer.HasValue) wm["layer"] = _pdfWatermarkLayer.Value.ToApiString();
+                p["watermark"] = wm;
+            }
             payload["pdf"] = p;
         }
 

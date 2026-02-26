@@ -89,6 +89,20 @@ byte[] pdf = await client.RenderHtml("<h1>Report</h1>")
     .SendAsync();
 ```
 
+### PDF Watermarks
+
+Add text or image watermarks to each page.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Draft Report</h1>")
+    .PdfWatermarkText("DRAFT")
+    .PdfWatermarkOpacity(0.15f)
+    .PdfWatermarkRotation(-45f)
+    .PdfWatermarkColor("#888888")
+    .PdfWatermarkLayer(WatermarkLayer.Over)
+    .SendAsync();
+```
+
 ### Cancellation
 
 All async methods accept an optional `CancellationToken`:
@@ -156,6 +170,14 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PdfKeywords` | `string` | Comma-separated PDF keywords |
 | `PdfCreator` | `string` | PDF creator application name |
 | `PdfBookmarks` | `bool` | Enable PDF bookmarks from headings |
+| `PdfWatermarkText` | `string` | Watermark text on each page |
+| `PdfWatermarkImage` | `string` | Base64-encoded PNG/JPEG watermark image |
+| `PdfWatermarkOpacity` | `float` | Watermark opacity (0.0-1.0, default: 0.15) |
+| `PdfWatermarkRotation` | `float` | Watermark rotation in degrees (default: -45) |
+| `PdfWatermarkColor` | `string` | Watermark text color as hex (default: #888888) |
+| `PdfWatermarkFontSize` | `float` | Watermark font size in PDF points (default: auto) |
+| `PdfWatermarkScale` | `float` | Watermark image scale (0.0-1.0, default: 0.5) |
+| `PdfWatermarkLayer` | `WatermarkLayer` | Layer position: `Over` or `Under` |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
@@ -170,6 +192,7 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `Flow` | `Auto`, `Paginate`, `Continuous` |
 | `DitherMethod` | `None`, `FloydSteinberg`, `Atkinson`, `Ordered` |
 | `Palette` | `Auto`, `BlackWhite`, `Grayscale`, `Eink` |
+| `WatermarkLayer` | `Over`, `Under` |
 
 ### Exceptions
 

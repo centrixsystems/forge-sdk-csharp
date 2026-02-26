@@ -45,6 +45,13 @@ public enum Palette
     Eink,
 }
 
+/// <summary>Watermark layer position.</summary>
+public enum WatermarkLayer
+{
+    Over,
+    Under,
+}
+
 internal static class EnumExtensions
 {
     public static string ToApiString(this OutputFormat f) => f switch
@@ -90,5 +97,12 @@ internal static class EnumExtensions
         Palette.Grayscale => "grayscale",
         Palette.Eink => "eink",
         _ => throw new ArgumentOutOfRangeException(nameof(p)),
+    };
+
+    public static string ToApiString(this WatermarkLayer l) => l switch
+    {
+        WatermarkLayer.Over => "over",
+        WatermarkLayer.Under => "under",
+        _ => throw new ArgumentOutOfRangeException(nameof(l)),
     };
 }
