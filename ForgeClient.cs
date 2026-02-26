@@ -99,6 +99,12 @@ public class RenderRequestBuilder
     private int? _colors;
     private object? _palette; // Palette enum or string[]
     private DitherMethod? _dither;
+    private string? _pdfTitle;
+    private string? _pdfAuthor;
+    private string? _pdfSubject;
+    private string? _pdfKeywords;
+    private string? _pdfCreator;
+    private bool? _pdfBookmarks;
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -121,6 +127,12 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PalettePreset(Palette p) { _palette = p; return this; }
     public RenderRequestBuilder CustomPalette(string[] colors) { _palette = colors; return this; }
     public RenderRequestBuilder Dither(DitherMethod method) { _dither = method; return this; }
+    public RenderRequestBuilder PdfTitle(string title) { _pdfTitle = title; return this; }
+    public RenderRequestBuilder PdfAuthor(string author) { _pdfAuthor = author; return this; }
+    public RenderRequestBuilder PdfSubject(string subject) { _pdfSubject = subject; return this; }
+    public RenderRequestBuilder PdfKeywords(string keywords) { _pdfKeywords = keywords; return this; }
+    public RenderRequestBuilder PdfCreator(string creator) { _pdfCreator = creator; return this; }
+    public RenderRequestBuilder PdfBookmarks(bool enabled) { _pdfBookmarks = enabled; return this; }
 
     /// <summary>Build the JSON payload.</summary>
     public JsonObject BuildPayload()
@@ -153,6 +165,19 @@ public class RenderRequestBuilder
             }
             if (_dither.HasValue) q["dither"] = _dither.Value.ToApiString();
             payload["quantize"] = q;
+        }
+
+        if (_pdfTitle != null || _pdfAuthor != null || _pdfSubject != null ||
+            _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue)
+        {
+            var p = new JsonObject();
+            if (_pdfTitle != null) p["title"] = _pdfTitle;
+            if (_pdfAuthor != null) p["author"] = _pdfAuthor;
+            if (_pdfSubject != null) p["subject"] = _pdfSubject;
+            if (_pdfKeywords != null) p["keywords"] = _pdfKeywords;
+            if (_pdfCreator != null) p["creator"] = _pdfCreator;
+            if (_pdfBookmarks.HasValue) p["bookmarks"] = _pdfBookmarks.Value;
+            payload["pdf"] = p;
         }
 
         return payload;

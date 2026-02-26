@@ -72,6 +72,23 @@ byte[] img = await client.RenderHtml("<h1>Brand</h1>")
     .SendAsync();
 ```
 
+### PDF Metadata
+
+Set PDF document metadata and enable bookmarks.
+
+```csharp
+byte[] pdf = await client.RenderHtml("<h1>Report</h1>")
+    .Format(OutputFormat.Pdf)
+    .Paper("a4")
+    .PdfTitle("Quarterly Report")
+    .PdfAuthor("Centrix ERP")
+    .PdfSubject("Q4 2025 Financial Summary")
+    .PdfKeywords("report,finance,quarterly")
+    .PdfCreator("Forge Renderer")
+    .PdfBookmarks(true)
+    .SendAsync();
+```
+
 ### Cancellation
 
 All async methods accept an optional `CancellationToken`:
@@ -133,6 +150,12 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PalettePreset` | `Palette` | Built-in palette preset |
 | `CustomPalette` | `string[]` | Array of hex color strings |
 | `Dither` | `DitherMethod` | Dithering algorithm |
+| `PdfTitle` | `string` | PDF document title |
+| `PdfAuthor` | `string` | PDF document author |
+| `PdfSubject` | `string` | PDF document subject |
+| `PdfKeywords` | `string` | Comma-separated PDF keywords |
+| `PdfCreator` | `string` | PDF creator application name |
+| `PdfBookmarks` | `bool` | Enable PDF bookmarks from headings |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
