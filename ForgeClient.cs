@@ -113,8 +113,10 @@ public class RenderRequestBuilder
     private float? _pdfWatermarkFontSize;
     private float? _pdfWatermarkScale;
     private WatermarkLayer? _pdfWatermarkLayer;
+    private string? _pdfWatermarkPages;
     private PdfStandard? _pdfStandard;
     private List<(string path, string data, string? mimeType, string? description, EmbedRelationship? relationship)>? _pdfEmbeddedFiles;
+    private List<(BarcodeType type, string data, double? x, double? y, double? width, double? height, BarcodeAnchor? anchor, string? foreground, string? background, bool? drawBackground, string? pages)> _pdfBarcodes = new();
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -151,7 +153,13 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PdfWatermarkFontSize(float size) { _pdfWatermarkFontSize = size; return this; }
     public RenderRequestBuilder PdfWatermarkScale(float scale) { _pdfWatermarkScale = scale; return this; }
     public RenderRequestBuilder PdfWatermarkLayer(WatermarkLayer layer) { _pdfWatermarkLayer = layer; return this; }
+    public RenderRequestBuilder PdfWatermarkPages(string pages) { _pdfWatermarkPages = pages; return this; }
     public RenderRequestBuilder PdfStandard(PdfStandard standard) { _pdfStandard = standard; return this; }
+    public RenderRequestBuilder PdfBarcode(BarcodeType type, string data, double? x = null, double? y = null, double? width = null, double? height = null, BarcodeAnchor? anchor = null, string? foreground = null, string? background = null, bool? drawBackground = null, string? pages = null)
+    {
+        _pdfBarcodes.Add((type, data, x, y, width, height, anchor, foreground, background, drawBackground, pages));
+        return this;
+    }
     public RenderRequestBuilder PdfAttach(string path, string base64Data, string? mimeType = null, string? description = null, EmbedRelationship? relationship = null)
     {
         _pdfEmbeddedFiles ??= new();
@@ -196,8 +204,8 @@ public class RenderRequestBuilder
             _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue ||
             _pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
             _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
-            _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue ||
-            _pdfStandard.HasValue || _pdfEmbeddedFiles != null)
+            _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue || _pdfWatermarkPages != null ||
+            _pdfStandard.HasValue || _pdfEmbeddedFiles != null || _pdfBarcodes.Count > 0)
         {
             var p = new JsonObject();
             if (_pdfTitle != null) p["title"] = _pdfTitle;
@@ -209,7 +217,7 @@ public class RenderRequestBuilder
             if (_pdfStandard.HasValue) p["standard"] = _pdfStandard.Value.ToApiString();
             if (_pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
                 _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
-                _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue)
+                _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue || _pdfWatermarkPages != null)
             {
                 var wm = new JsonObject();
                 if (_pdfWatermarkText != null) wm["text"] = _pdfWatermarkText;
@@ -220,6 +228,7 @@ public class RenderRequestBuilder
                 if (_pdfWatermarkFontSize.HasValue) wm["font_size"] = _pdfWatermarkFontSize.Value;
                 if (_pdfWatermarkScale.HasValue) wm["scale"] = _pdfWatermarkScale.Value;
                 if (_pdfWatermarkLayer.HasValue) wm["layer"] = _pdfWatermarkLayer.Value.ToApiString();
+                if (_pdfWatermarkPages != null) wm["pages"] = _pdfWatermarkPages;
                 p["watermark"] = wm;
             }
             if (_pdfEmbeddedFiles != null)
@@ -234,6 +243,25 @@ public class RenderRequestBuilder
                     arr.Add(ef);
                 }
                 p["embedded_files"] = arr;
+            }
+            if (_pdfBarcodes.Count > 0)
+            {
+                var arr = new JsonArray();
+                foreach (var (type, data, x, y, width, height, anchor, foreground, background, drawBackground, pages) in _pdfBarcodes)
+                {
+                    var bc = new JsonObject { ["type"] = type.ToApiString(), ["data"] = data };
+                    if (x.HasValue) bc["x"] = x.Value;
+                    if (y.HasValue) bc["y"] = y.Value;
+                    if (width.HasValue) bc["width"] = width.Value;
+                    if (height.HasValue) bc["height"] = height.Value;
+                    if (anchor.HasValue) bc["anchor"] = anchor.Value.ToApiString();
+                    if (foreground != null) bc["foreground"] = foreground;
+                    if (background != null) bc["background"] = background;
+                    if (drawBackground.HasValue) bc["draw_background"] = drawBackground.Value;
+                    if (pages != null) bc["pages"] = pages;
+                    arr.Add(bc);
+                }
+                p["barcodes"] = arr;
             }
             payload["pdf"] = p;
         }

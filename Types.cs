@@ -70,6 +70,25 @@ public enum EmbedRelationship
     Unspecified,
 }
 
+/// <summary>Barcode symbology type.</summary>
+public enum BarcodeType
+{
+    Qr,
+    Code128,
+    Ean13,
+    UpcA,
+    Code39,
+}
+
+/// <summary>Barcode anchor position on the page.</summary>
+public enum BarcodeAnchor
+{
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
+
 internal static class EnumExtensions
 {
     public static string ToApiString(this OutputFormat f) => f switch
@@ -140,5 +159,24 @@ internal static class EnumExtensions
         EmbedRelationship.Source => "source",
         EmbedRelationship.Unspecified => "unspecified",
         _ => throw new ArgumentOutOfRangeException(nameof(r)),
+    };
+
+    public static string ToApiString(this BarcodeType t) => t switch
+    {
+        BarcodeType.Qr => "qr",
+        BarcodeType.Code128 => "code128",
+        BarcodeType.Ean13 => "ean13",
+        BarcodeType.UpcA => "upca",
+        BarcodeType.Code39 => "code39",
+        _ => throw new ArgumentOutOfRangeException(nameof(t)),
+    };
+
+    public static string ToApiString(this BarcodeAnchor a) => a switch
+    {
+        BarcodeAnchor.TopLeft => "top-left",
+        BarcodeAnchor.TopRight => "top-right",
+        BarcodeAnchor.BottomLeft => "bottom-left",
+        BarcodeAnchor.BottomRight => "bottom-right",
+        _ => throw new ArgumentOutOfRangeException(nameof(a)),
     };
 }
