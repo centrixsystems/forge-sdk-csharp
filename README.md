@@ -127,6 +127,65 @@ var pdf = await client.RenderHtml("<h1>Invoice #1234</h1>")
     .SendAsync();
 ```
 
+### PDF Rendering Mode
+
+Control how page content is rendered into the PDF.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Vector Report</h1>")
+    .PdfMode(PdfMode.Vector)
+    .SendAsync();
+```
+
+### PDF Digital Signatures
+
+Sign PDFs with a PKCS#12 certificate.
+
+```csharp
+string certData = Convert.ToBase64String(File.ReadAllBytes("cert.p12"));
+
+var pdf = await client.RenderHtml("<h1>Signed Document</h1>")
+    .PdfSignCertificate(certData)
+    .PdfSignPassword("secret")
+    .PdfSignName("Luke Branch")
+    .PdfSignReason("Approval")
+    .PdfSignLocation("Melbourne")
+    .PdfSignTimestampUrl("http://timestamp.digicert.com")
+    .SendAsync();
+```
+
+### PDF Encryption
+
+Protect PDFs with user/owner passwords and permission restrictions.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Confidential</h1>")
+    .PdfUserPassword("read-only")
+    .PdfOwnerPassword("full-access")
+    .PdfPermissions("print,copy")
+    .SendAsync();
+```
+
+### PDF Accessibility
+
+Generate accessible PDFs for screen readers.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Accessible Report</h1>")
+    .PdfAccessibility(AccessibilityLevel.PdfUa1)
+    .SendAsync();
+```
+
+### PDF Linearization
+
+Enable linearized (fast web view) PDF output.
+
+```csharp
+var pdf = await client.RenderHtml("<h1>Web-Optimized</h1>")
+    .PdfLinearize(true)
+    .SendAsync();
+```
+
 ### Cancellation
 
 All async methods accept an optional `CancellationToken`:
@@ -194,6 +253,7 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PdfKeywords` | `string` | Comma-separated PDF keywords |
 | `PdfCreator` | `string` | PDF creator application name |
 | `PdfBookmarks` | `bool` | Enable PDF bookmarks from headings |
+| `PdfPageNumbers` | `bool` | Add "Page X of Y" footers to each page |
 | `PdfWatermarkText` | `string` | Watermark text on each page |
 | `PdfWatermarkImage` | `string` | Base64-encoded PNG/JPEG watermark image |
 | `PdfWatermarkOpacity` | `float` | Watermark opacity (0.0-1.0, default: 0.15) |
@@ -204,6 +264,18 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PdfWatermarkLayer` | `WatermarkLayer` | Layer position: `Over` or `Under` |
 | `PdfStandard` | `PdfStandard` | PDF standard: `None`, `A2B`, `A3B` |
 | `PdfAttach` | `string, string, ...` | Embed file: path, base64 data, mime type, description, relationship |
+| `PdfMode` | `PdfMode` | PDF rendering mode: `Auto`, `Vector`, `Raster` |
+| `PdfSignCertificate` | `string` | Base64-encoded PKCS#12 certificate for digital signing |
+| `PdfSignPassword` | `string` | Password for the signing certificate |
+| `PdfSignName` | `string` | Signer display name |
+| `PdfSignReason` | `string` | Reason for signing |
+| `PdfSignLocation` | `string` | Location of signing |
+| `PdfSignTimestampUrl` | `string` | RFC 3161 timestamp server URL |
+| `PdfUserPassword` | `string` | Password required to open the PDF |
+| `PdfOwnerPassword` | `string` | Password required for full access |
+| `PdfPermissions` | `string` | Comma-separated permission flags |
+| `PdfAccessibility` | `AccessibilityLevel` | Accessibility level: `None`, `Basic`, `PdfUa1` |
+| `PdfLinearize` | `bool` | Enable linearized (fast web view) output |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
@@ -221,6 +293,8 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `WatermarkLayer` | `Over`, `Under` |
 | `PdfStandard` | `None`, `A2B`, `A3B` |
 | `EmbedRelationship` | `Alternative`, `Supplement`, `Data`, `Source`, `Unspecified` |
+| `PdfMode` | `Auto`, `Vector`, `Raster` |
+| `AccessibilityLevel` | `None`, `Basic`, `PdfUa1` |
 
 ### Exceptions
 

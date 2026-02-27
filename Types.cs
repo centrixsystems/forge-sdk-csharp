@@ -89,6 +89,22 @@ public enum BarcodeAnchor
     BottomRight,
 }
 
+/// <summary>PDF rendering mode.</summary>
+public enum PdfMode
+{
+    Auto,
+    Vector,
+    Raster,
+}
+
+/// <summary>PDF accessibility compliance level.</summary>
+public enum AccessibilityLevel
+{
+    None,
+    Basic,
+    PdfUa1,
+}
+
 internal static class EnumExtensions
 {
     public static string ToApiString(this OutputFormat f) => f switch
@@ -178,5 +194,21 @@ internal static class EnumExtensions
         BarcodeAnchor.BottomLeft => "bottom-left",
         BarcodeAnchor.BottomRight => "bottom-right",
         _ => throw new ArgumentOutOfRangeException(nameof(a)),
+    };
+
+    public static string ToApiString(this PdfMode m) => m switch
+    {
+        PdfMode.Auto => "auto",
+        PdfMode.Vector => "vector",
+        PdfMode.Raster => "raster",
+        _ => throw new ArgumentOutOfRangeException(nameof(m)),
+    };
+
+    public static string ToApiString(this AccessibilityLevel l) => l switch
+    {
+        AccessibilityLevel.None => "none",
+        AccessibilityLevel.Basic => "basic",
+        AccessibilityLevel.PdfUa1 => "pdf/ua-1",
+        _ => throw new ArgumentOutOfRangeException(nameof(l)),
     };
 }

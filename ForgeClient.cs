@@ -105,6 +105,7 @@ public class RenderRequestBuilder
     private string? _pdfKeywords;
     private string? _pdfCreator;
     private bool? _pdfBookmarks;
+    private bool? _pdfPageNumbers;
     private string? _pdfWatermarkText;
     private string? _pdfWatermarkImage; // base64-encoded
     private float? _pdfWatermarkOpacity;
@@ -117,6 +118,18 @@ public class RenderRequestBuilder
     private PdfStandard? _pdfStandard;
     private List<(string path, string data, string? mimeType, string? description, EmbedRelationship? relationship)>? _pdfEmbeddedFiles;
     private List<(BarcodeType type, string data, double? x, double? y, double? width, double? height, BarcodeAnchor? anchor, string? foreground, string? background, bool? drawBackground, string? pages)> _pdfBarcodes = new();
+    private PdfMode? _pdfMode;
+    private string? _pdfSignCertificate;
+    private string? _pdfSignPassword;
+    private string? _pdfSignName;
+    private string? _pdfSignReason;
+    private string? _pdfSignLocation;
+    private string? _pdfSignTimestampUrl;
+    private string? _pdfUserPassword;
+    private string? _pdfOwnerPassword;
+    private string? _pdfPermissions;
+    private AccessibilityLevel? _pdfAccessibility;
+    private bool? _pdfLinearize;
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -145,6 +158,7 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PdfKeywords(string keywords) { _pdfKeywords = keywords; return this; }
     public RenderRequestBuilder PdfCreator(string creator) { _pdfCreator = creator; return this; }
     public RenderRequestBuilder PdfBookmarks(bool enabled) { _pdfBookmarks = enabled; return this; }
+    public RenderRequestBuilder PdfPageNumbers(bool enabled) { _pdfPageNumbers = enabled; return this; }
     public RenderRequestBuilder PdfWatermarkText(string text) { _pdfWatermarkText = text; return this; }
     public RenderRequestBuilder PdfWatermarkImage(string base64Data) { _pdfWatermarkImage = base64Data; return this; }
     public RenderRequestBuilder PdfWatermarkOpacity(float opacity) { _pdfWatermarkOpacity = opacity; return this; }
@@ -166,6 +180,18 @@ public class RenderRequestBuilder
         _pdfEmbeddedFiles.Add((path, base64Data, mimeType, description, relationship));
         return this;
     }
+    public RenderRequestBuilder PdfMode(PdfMode mode) { _pdfMode = mode; return this; }
+    public RenderRequestBuilder PdfSignCertificate(string data) { _pdfSignCertificate = data; return this; }
+    public RenderRequestBuilder PdfSignPassword(string password) { _pdfSignPassword = password; return this; }
+    public RenderRequestBuilder PdfSignName(string name) { _pdfSignName = name; return this; }
+    public RenderRequestBuilder PdfSignReason(string reason) { _pdfSignReason = reason; return this; }
+    public RenderRequestBuilder PdfSignLocation(string location) { _pdfSignLocation = location; return this; }
+    public RenderRequestBuilder PdfSignTimestampUrl(string url) { _pdfSignTimestampUrl = url; return this; }
+    public RenderRequestBuilder PdfUserPassword(string password) { _pdfUserPassword = password; return this; }
+    public RenderRequestBuilder PdfOwnerPassword(string password) { _pdfOwnerPassword = password; return this; }
+    public RenderRequestBuilder PdfPermissions(string permissions) { _pdfPermissions = permissions; return this; }
+    public RenderRequestBuilder PdfAccessibility(AccessibilityLevel level) { _pdfAccessibility = level; return this; }
+    public RenderRequestBuilder PdfLinearize(bool enabled) { _pdfLinearize = enabled; return this; }
 
     /// <summary>Build the JSON payload.</summary>
     public JsonObject BuildPayload()
@@ -202,10 +228,14 @@ public class RenderRequestBuilder
 
         if (_pdfTitle != null || _pdfAuthor != null || _pdfSubject != null ||
             _pdfKeywords != null || _pdfCreator != null || _pdfBookmarks.HasValue ||
+            _pdfPageNumbers.HasValue ||
             _pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
             _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
             _pdfWatermarkScale.HasValue || _pdfWatermarkLayer.HasValue || _pdfWatermarkPages != null ||
-            _pdfStandard.HasValue || _pdfEmbeddedFiles != null || _pdfBarcodes.Count > 0)
+            _pdfStandard.HasValue || _pdfEmbeddedFiles != null || _pdfBarcodes.Count > 0 ||
+            _pdfMode.HasValue || _pdfSignCertificate != null || _pdfUserPassword != null ||
+            _pdfOwnerPassword != null || _pdfPermissions != null || _pdfAccessibility.HasValue ||
+            _pdfLinearize.HasValue)
         {
             var p = new JsonObject();
             if (_pdfTitle != null) p["title"] = _pdfTitle;
@@ -214,6 +244,7 @@ public class RenderRequestBuilder
             if (_pdfKeywords != null) p["keywords"] = _pdfKeywords;
             if (_pdfCreator != null) p["creator"] = _pdfCreator;
             if (_pdfBookmarks.HasValue) p["bookmarks"] = _pdfBookmarks.Value;
+            if (_pdfPageNumbers.HasValue) p["page_numbers"] = _pdfPageNumbers.Value;
             if (_pdfStandard.HasValue) p["standard"] = _pdfStandard.Value.ToApiString();
             if (_pdfWatermarkText != null || _pdfWatermarkImage != null || _pdfWatermarkOpacity.HasValue ||
                 _pdfWatermarkRotation.HasValue || _pdfWatermarkColor != null || _pdfWatermarkFontSize.HasValue ||
@@ -263,6 +294,27 @@ public class RenderRequestBuilder
                 }
                 p["barcodes"] = arr;
             }
+            if (_pdfMode.HasValue) p["mode"] = _pdfMode.Value.ToApiString();
+            if (_pdfSignCertificate != null)
+            {
+                var sig = new JsonObject { ["certificate_data"] = _pdfSignCertificate };
+                if (_pdfSignPassword != null) sig["password"] = _pdfSignPassword;
+                if (_pdfSignName != null) sig["signer_name"] = _pdfSignName;
+                if (_pdfSignReason != null) sig["reason"] = _pdfSignReason;
+                if (_pdfSignLocation != null) sig["location"] = _pdfSignLocation;
+                if (_pdfSignTimestampUrl != null) sig["timestamp_url"] = _pdfSignTimestampUrl;
+                p["signature"] = sig;
+            }
+            if (_pdfUserPassword != null || _pdfOwnerPassword != null || _pdfPermissions != null)
+            {
+                var enc = new JsonObject();
+                if (_pdfUserPassword != null) enc["user_password"] = _pdfUserPassword;
+                if (_pdfOwnerPassword != null) enc["owner_password"] = _pdfOwnerPassword;
+                if (_pdfPermissions != null) enc["permissions"] = _pdfPermissions;
+                p["encryption"] = enc;
+            }
+            if (_pdfAccessibility.HasValue) p["accessibility"] = _pdfAccessibility.Value.ToApiString();
+            if (_pdfLinearize.HasValue) p["linearize"] = _pdfLinearize.Value;
             payload["pdf"] = p;
         }
 
