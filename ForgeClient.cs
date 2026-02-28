@@ -130,6 +130,7 @@ public class RenderRequestBuilder
     private string? _pdfPermissions;
     private AccessibilityLevel? _pdfAccessibility;
     private bool? _pdfLinearize;
+    private string? _pdfLang;
 
     internal RenderRequestBuilder(ForgeClient client, string? html = null, string? url = null)
     {
@@ -192,6 +193,7 @@ public class RenderRequestBuilder
     public RenderRequestBuilder PdfPermissions(string permissions) { _pdfPermissions = permissions; return this; }
     public RenderRequestBuilder PdfAccessibility(AccessibilityLevel level) { _pdfAccessibility = level; return this; }
     public RenderRequestBuilder PdfLinearize(bool enabled) { _pdfLinearize = enabled; return this; }
+    public RenderRequestBuilder PdfLang(string lang) { _pdfLang = lang; return this; }
 
     /// <summary>Build the JSON payload.</summary>
     public JsonObject BuildPayload()
@@ -235,7 +237,7 @@ public class RenderRequestBuilder
             _pdfStandard.HasValue || _pdfEmbeddedFiles != null || _pdfBarcodes.Count > 0 ||
             _pdfMode.HasValue || _pdfSignCertificate != null || _pdfUserPassword != null ||
             _pdfOwnerPassword != null || _pdfPermissions != null || _pdfAccessibility.HasValue ||
-            _pdfLinearize.HasValue)
+            _pdfLinearize.HasValue || _pdfLang != null)
         {
             var p = new JsonObject();
             if (_pdfTitle != null) p["title"] = _pdfTitle;
@@ -315,6 +317,7 @@ public class RenderRequestBuilder
             }
             if (_pdfAccessibility.HasValue) p["accessibility"] = _pdfAccessibility.Value.ToApiString();
             if (_pdfLinearize.HasValue) p["linearize"] = _pdfLinearize.Value;
+            if (_pdfLang != null) p["document_lang"] = _pdfLang;
             payload["pdf"] = p;
         }
 

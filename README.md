@@ -276,6 +276,7 @@ All methods return the builder for chaining. Call `.SendAsync()` to execute.
 | `PdfPermissions` | `string` | Comma-separated permission flags |
 | `PdfAccessibility` | `AccessibilityLevel` | Accessibility level: `None`, `Basic`, `PdfUa1` |
 | `PdfLinearize` | `bool` | Enable linearized (fast web view) output |
+| `PdfLang` | `string` | Document language (BCP 47 tag, e.g. `"en-US"`). Required for PDF/UA-1 |
 
 | Terminal Method | Returns | Description |
 |-----------------|---------|-------------|
