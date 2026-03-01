@@ -73,11 +73,21 @@ public enum EmbedRelationship
 /// <summary>Barcode symbology type.</summary>
 public enum BarcodeType
 {
+    // 2D types
     Qr,
+    DataMatrix,
+    Pdf417,
+    Aztec,
+    // 1D types
     Code128,
     Ean13,
+    Ean8,
     UpcA,
     Code39,
+    Code93,
+    Codabar,
+    Itf,
+    Code11,
 }
 
 /// <summary>Barcode anchor position on the page.</summary>
@@ -180,10 +190,18 @@ internal static class EnumExtensions
     public static string ToApiString(this BarcodeType t) => t switch
     {
         BarcodeType.Qr => "qr",
+        BarcodeType.DataMatrix => "datamatrix",
+        BarcodeType.Pdf417 => "pdf417",
+        BarcodeType.Aztec => "aztec",
         BarcodeType.Code128 => "code128",
         BarcodeType.Ean13 => "ean13",
+        BarcodeType.Ean8 => "ean8",
         BarcodeType.UpcA => "upca",
         BarcodeType.Code39 => "code39",
+        BarcodeType.Code93 => "code93",
+        BarcodeType.Codabar => "codabar",
+        BarcodeType.Itf => "itf",
+        BarcodeType.Code11 => "code11",
         _ => throw new ArgumentOutOfRangeException(nameof(t)),
     };
 
