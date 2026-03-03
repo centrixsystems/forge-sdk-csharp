@@ -73,6 +73,49 @@ public class ForgeClient : IDisposable
         return await resp.Content.ReadAsByteArrayAsync(ct);
     }
 
+    internal async Task<RenderResponse> SendResponseAsync(JsonObject payload, CancellationToken ct)
+    {
+        HttpResponseMessage resp;
+        try
+        {
+            var content = new StringContent(
+                payload.ToJsonString(),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            );
+            resp = await _http.PostAsync($"{_baseUrl}/render", content, ct);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new ForgeConnectionException(ex);
+        }
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            string message;
+            try
+            {
+                var body = await resp.Content.ReadFromJsonAsync<JsonObject>(ct);
+                message = body?["error"]?.GetValue<string>() ?? $"HTTP {(int)resp.StatusCode}";
+            }
+            catch
+            {
+                message = $"HTTP {(int)resp.StatusCode}";
+            }
+            throw new ForgeServerException((int)resp.StatusCode, message);
+        }
+
+        var data = await resp.Content.ReadAsByteArrayAsync(ct);
+
+        var warnings = new List<string>();
+        if (resp.Headers.TryGetValues("X-Forge-Warning", out var headerValues))
+        {
+            warnings.AddRange(headerValues);
+        }
+
+        return new RenderResponse(data, warnings.AsReadOnly());
+    }
+
     public void Dispose()
     {
         _http.Dispose();
@@ -327,4 +370,8 @@ public class RenderRequestBuilder
     /// <summary>Send the render request.</summary>
     public Task<byte[]> SendAsync(CancellationToken ct = default) =>
         _client.SendAsync(BuildPayload(), ct);
+
+    /// <summary>Send the render request and return a RenderResponse containing both the output bytes and any CSS compatibility warnings.</summary>
+    public Task<RenderResponse> SendResponseAsync(CancellationToken ct = default) =>
+        _client.SendResponseAsync(BuildPayload(), ct);
 }

@@ -115,6 +115,21 @@ public enum AccessibilityLevel
     PdfUa1,
 }
 
+/// <summary>Response from a render request, including any CSS compatibility warnings.</summary>
+public class RenderResponse
+{
+    /// <summary>The rendered output bytes (PDF, PNG, etc.).</summary>
+    public byte[] Data { get; }
+    /// <summary>CSS compatibility warnings from the Forge server.</summary>
+    public IReadOnlyList<string> Warnings { get; }
+
+    public RenderResponse(byte[] data, IReadOnlyList<string> warnings)
+    {
+        Data = data;
+        Warnings = warnings;
+    }
+}
+
 internal static class EnumExtensions
 {
     public static string ToApiString(this OutputFormat f) => f switch
